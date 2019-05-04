@@ -1,0 +1,476 @@
+<h2>Русская документация по поисковому движку Sphinx (Sphinx Russian Docs)</h2>
+<b>Для Sphinx v.2</b>
+
+<h2>1.1. Введение</h2>
+
+Sphinx is a full-text search engine, publicly distributed under GPL version 2. Commercial licensing (eg. for embedded use) is available upon request.
+
+Technically, Sphinx is a standalone software package provides fast and relevant full-text search functionality to client applications. It was specially designed to integrate well with SQL databases storing the data, and to be easily accessed by scripting languages. However, Sphinx does not depend on nor require any specific database to function.
+
+Applications can access Sphinx search daemon (searchd) using any of the three different access methods: a) via Sphinx own implementation of MySQL network protocol (using a small SQL subset called SphinxQL, this is recommended way), b) via native search API (SphinxAPI) or c) via MySQL server with a pluggable storage engine (SphinxSE).
+
+Official native SphinxAPI implementations for PHP, Perl, Python, Ruby and Java are included within the distribution package. API is very lightweight so porting it to a new language is known to take a few hours or days. Third party API ports and plugins exist for Perl, C#, Haskell, Ruby-on-Rails, and possibly other languages and frameworks.
+
+Starting from version 1.10-beta, Sphinx supports two different indexing backends: "disk" index backend, and "realtime" (RT) index backend. Disk indexes support online full-text index rebuilds, but online updates can only be done on non-text (attribute) data. RT indexes additionally allow for online full-text index updates. Previous versions only supported disk indexes.
+
+Data can be loaded into disk indexes using a so-called data source. Built-in sources can fetch data directly from MySQL, PostgreSQL, MSSQL, ODBC compliant database (Oracle, etc) or a pipe in TSV or a custom XML format. Adding new data sources drivers (eg. to natively support other DBMSes) is designed to be as easy as possible. RT indexes, as of 1.10-beta, can only be populated using SphinxQL.
+
+As for the name, Sphinx is an acronym which is officially decoded as SQL Phrase Index. Yes, I know about CMU's Sphinx project.
+
+
+
+<h2>1.2. Функциональность Sphinx</h2>
+
+Key Sphinx features are:
+
+    high indexing and searching performance;
+    advanced indexing and querying tools (flexible and feature-rich text tokenizer, querying language, several different ranking modes, etc);
+    advanced result set post-processing (SELECT with expressions, WHERE, ORDER BY, GROUP BY, HAVING etc over text search results);
+    proven scalability up to billions of documents, terabytes of data, and thousands of queries per second;
+    easy integration with SQL and XML data sources, and SphinxQL, SphinxAPI, or SphinxSE search interfaces;
+    easy scaling with distributed searches.
+
+To expand a bit, Sphinx:
+
+    has high indexing speed (upto 10-15 MB/sec per core on an internal benchmark);
+    has high search speed (upto 150-250 queries/sec per core against 1,000,000 documents, 1.2 GB of data on an internal benchmark);
+    has high scalability (biggest known cluster indexes over 3,000,000,000 documents, and busiest one peaks over 50,000,000 queries/day);
+    provides good relevance ranking through combination of phrase proximity ranking and statistical (BM25) ranking;
+    provides distributed searching capabilities;
+    provides document excerpts (snippets) generation;
+    provides searching from within application with SphinxQL or SphinxAPI interfaces, and from within MySQL with pluggable SphinxSE storage engine;
+    supports boolean, phrase, word proximity and other types of queries;
+    supports multiple full-text fields per document (upto 32 by default);
+    supports multiple additional attributes per document (ie. groups, timestamps, etc);
+    supports stopwords;
+    supports morphological word forms dictionaries;
+    supports tokenizing exceptions;
+    supports UTF-8 encoding;
+    supports stemming (stemmers for English, Russian, Czech and Arabic are built-in; and stemmers for French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish, Finnish, Hungarian, are available by building third party libstemmer library);
+    supports MySQL natively (all types of tables, including MyISAM, InnoDB, NDB, Archive, etc are supported);
+    supports PostgreSQL natively;
+    supports ODBC compliant databases (MS SQL, Oracle, etc) natively;
+    ...has 50+ other features not listed here, refer configuration manual!
+
+
+<h2>1.3. Где скачать Sphinx</h2>
+
+Sphinx is available through its official Web site at http://sphinxsearch.com/.
+Currently, Sphinx distribution tarball includes the following software:
+
+    indexer: an utility which creates fulltext indexes;
+    searchd: a daemon which enables external software (eg. Web applications) to search through fulltext indexes;
+    sphinxapi: a set of searchd client API libraries for popular Web scripting languages (PHP, Python, Perl, Ruby).
+    spelldump: a simple command-line tool to extract the items from an ispell or MySpell (as bundled with OpenOffice) format dictionary to help customize your index, for use with wordforms.
+    indextool: an utility to dump miscellaneous debug information about the index, added in version 0.9.9-rc2.
+    wordbreaker: an utility to break down compound words into separate words, added in version 2.1.1.
+
+<h2>1.4. Лицензирование</h2>
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. See COPYING file for details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+Non-GPL licensing (for OEM/ISV embedded use) can also be arranged, please contact us to discuss commercial licensing possibilities.
+
+<h2>1.5. Credits</h2>
+<h3>Автор</h3>
+
+Sphinx initial author (and a benevolent dictator ever since):
+    Andrew Aksyonoff, http://shodan.ru
+
+<h3>Команда</h3>
+
+Past and present employees of Sphinx Technologies Inc who should be noted on their work on Sphinx (in alphabetical order):
+    Adam Rice
+    Adrian Nuta
+    Alexander Klimenko
+    Alexey Dvoichenkov
+    Alexey Vinogradov
+    Anton Tsitlionok
+    Eugene Kosov
+    Gloria Vinogradova
+    Ilya Kuznetsov
+    Kirill Shmatov
+    Rich Kelm
+    Stanislav Klinov
+    Steven Barker
+    Vladimir Fedorkov
+    Yuri Schapov
+
+<h3>Contributors</h3>
+
+People who contributed to Sphinx and their contributions (in no particular order):
+
+    Robert "coredev" Bengtsson (Sweden), initial version of PostgreSQL data source
+    Len Kranendonk, Perl API
+    Dmytro Shteflyuk, Ruby API
+
+Many other people have contributed ideas, bug reports, fixes, etc. Thank you!
+
+<h2>1.6. История</h2>
+
+Sphinx development was started back in 2001, because I didn't manage to find an acceptable search solution (for a database driven Web site) which would meet my requirements. Actually, each and every important aspect was a problem:
+
+    search quality (ie. good relevance)
+    statistical ranking methods performed rather bad, especially on large collections of small documents (forums, blogs, etc)
+    search speed
+    especially if searching for phrases which contain stopwords, as in "to be or not to be"
+    moderate disk and CPU requirements when indexing
+    important in shared hosting environment, not to mention the indexing speed.
+
+Despite the amount of time passed and numerous improvements made in the other solutions, there's still no solution which I personally would be eager to migrate to.
+
+Considering that and a lot of positive feedback received from Sphinx users during last years, the obvious decision is to continue developing Sphinx (and, eventually, to take over the world).
+
+<h2>Часть 2. Установка</h2>
+<h2>2.1. Поддерживаемые системы</h2>
+
+Sphinx can be compiled either from source or installed using prebuilt packages. Most modern UNIX systems with a C++ compiler should be able to compile and run Sphinx without any modifications.
+
+Currently known systems Sphinx has been successfully running on are:
+    Linux 2.4.x, 2.6.x, 3.x (many various distributions)
+    Windows 2000, XP, 7, 8
+    FreeBSD 4.x, 5.x, 6.x, 7.x, 8.x
+    NetBSD 1.6, 3.0
+    Solaris 9, 11
+    Mac OS X
+
+CPU architectures known to work include i386 (aka x86), amd64 (aka x86_64), SPARC64, and ARM.
+
+Chances are good that Sphinx should work on other Unix platforms and/or CPU architectures just as well. Please report any other platforms that worked for you!
+
+All platforms are production quality. There are no principal functional limitations on any platform.
+
+
+
+<h2>2.2. Компиляция из исходников</h2>
+<h3>2.2.1. Необходимые инструменты</h3>
+
+On UNIX, you will need the following tools to build and install Sphinx:
+
+    a working C++ compiler. GNU gcc and clang are known to work.
+
+    a good make program. GNU make is known to work.
+
+On Windows, you will need Microsoft Visual C/C++ Studio .NET 2005 or above. Other compilers/environments will probably work as well, but for the time being, you will have to build makefile (or other environment specific project files) manually.
+
+<h3>2.2.2. Компиляция в Linux</h3>
+
+    Extract everything from the distribution tarball (haven't you already?) and go to the sphinx subdirectory. (We are using version 2.3.2-beta here for the sake of example only; be sure to change this to a specific version you're using.)
+    $ tar xzvf sphinx-2.3.2-beta.tar.gz
+    $ cd sphinx
+
+    Run the configuration program:
+    $ ./configure
+
+    There's a number of options to configure. The complete listing may be obtained by using --help switch. The most important ones are:
+
+        --prefix, which specifies where to install Sphinx; such as --prefix=/usr/local/sphinx (all of the examples use this prefix)
+        --with-mysql, which specifies where to look for MySQL include and library files, if auto-detection fails;
+        --with-static-mysql, which builds Sphinx with statically linked MySQL support;
+        --with-pgsql, which specifies where to look for PostgreSQL include and library files.
+        --with-static-pgsql, which builds Sphinx with statically linked PostgreSQL support;
+
+    Build the binaries:
+    $ make
+
+    Install the binaries in the directory of your choice: (defaults to /usr/local/bin/ on *nix systems, but is overridden with configure --prefix)
+    $ make install
+
+
+
+<h3>2.2.3. Известные проблемы компиляции</h3>
+
+If configure fails to locate MySQL headers and/or libraries, try checking for and installing mysql-devel package. On some systems, it is not installed by default.
+
+If make fails with a message which look like
+
+/bin/sh: g++: command not found
+make[1]: *** [libsphinx_a-sphinx.o] Error 127
+
+try checking for and installing gcc-c++ package.
+
+If you are getting compile-time errors which look like
+
+sphinx.cpp:67: error: invalid application of `sizeof' to
+    incomplete type `Private::SizeError<false>'
+
+this means that some compile-time type size check failed. The most probable reason is that off_t type is less than 64-bit on your system. As a quick hack, you can edit sphinx.h and replace off_t with DWORD in a typedef for SphOffset_t, but note that this will prohibit you from using full-text indexes larger than 2 GB. Even if the hack helps, please report such issues, providing the exact error message and compiler/OS details, so I could properly fix them in next releases.
+
+If you keep getting any other error, or the suggestions above do not seem to help you, please don't hesitate to contact me.
+
+
+
+<h2>2.3. Installing Sphinx packages on Debian and Ubuntu</h2>
+
+There are two ways of getting Sphinx for Ubuntu: regular deb packages and the Launchpad PPA repository.
+
+Deb packages:
+
+    Sphinx requires a few libraries to be installed on Debian/Ubuntu. Use apt-get to download and install these dependencies:
+    $ sudo apt-get install mysql-client unixodbc libpq5
+
+    Now you can install Sphinx:
+    $ sudo dpkg -i sphinxsearch_2.3.2-beta-1~trusty_amd64.deb
+
+PPA repository (Ubuntu only).
+
+Installing Sphinx is much easier from Sphinxsearch PPA repository, because you will get all dependencies and can also update Sphinx to the latest version with the same command.
+
+    First, add Sphinxsearch repository and update the list of packages:
+    $ sudo add-apt-repository ppa:builds/sphinxsearch-rel23
+    $ sudo apt-get update
+
+    Install/update sphinxsearch package:
+    $ sudo apt-get install sphinxsearch
+
+Sphinx searchd daemon can be started/stopped using service command:
+
+$ sudo service sphinxsearch start
+
+<h2>2.4. Installing Sphinx packages on RedHat and CentOS</h2>
+
+Currently we distribute Sphinx RPMS and SRPMS on our website for both 5.x and 6.x versions of Red Hat Enterprise Linux, but they can be installed on CentOS as well.
+
+    Before installation make sure you have these packages installed:
+    $ yum install postgresql-libs unixODBC
+
+    Download RedHat RPM from Sphinx website and install it:
+    $ rpm -Uhv sphinx-2.2.1-1.rhel6.x86_64.rpm
+
+    After preparing configuration file (see Quick tour), you can start searchd daemon:
+    $ service searchd start
+
+<h2>2.5. Installing Sphinx on Windows</h2>
+
+Installing Sphinx on a Windows server is often easier than installing on a Linux environment; unless you are preparing code patches, you can use the pre-compiled binary files from the Downloads area on the website.
+
+    Extract everything from the .zip file you have downloaded - sphinx-2.3.2-beta-win32.zip, or sphinx-2.3.2-beta-win32-pgsql.zip if you need PostgresSQL support as well. (We are using version 2.3.2-beta here for the sake of example only; be sure to change this to a specific version you're using.) You can use Windows Explorer in Windows XP and up to extract the files, or a freeware package like 7Zip to open the archive.
+
+    For the remainder of this guide, we will assume that the folders are unzipped into C:\Sphinx, such that searchd.exe can be found in C:\Sphinx\bin\searchd.exe. If you decide to use any different location for the folders or configuration file, please change it accordingly.
+
+    Edit the contents of sphinx.conf.in - specifically entries relating to @CONFDIR@ - to paths suitable for your system.
+
+    Install the searchd system as a Windows service:
+
+    C:\Sphinx\bin> C:\Sphinx\bin\searchd --install --config C:\Sphinx\sphinx.conf.in --servicename SphinxSearch
+
+    The searchd service will now be listed in the Services panel within the Management Console, available from Administrative Tools. It will not have been started, as you will need to configure it and build your indexes with indexer before starting the service. A guide to do this can be found under Quick tour.
+
+    During the next steps of the install (which involve running indexer pretty much as you would on Linux) you may find that you get an error relating to libmysql.dll not being found. If you have MySQL installed, you should find a copy of this library in your Windows directory, or sometimes in Windows\System32, or failing that in the MySQL core directories. If you do receive an error please copy libmysql.dll into the bin directory.
+
+<h2>2.6. Sphinx deprecations and changes in default configuration</h2>
+
+In 2.2.1-beta version we decided to start removing some old features. All of them was 'unofficially' deprecated for some time. And we're informing you now about it.
+
+Changes are as follows:
+    32-bit document IDs are now deprecated. Our binary releases are now all built with 64-bit IDs by default. Note that they can still load older indexes with 32-bit IDs, but that support will eventually be removed. In fact, that was deprecated awhile ago, but now we just want to make it clear: we don't see any sense in trying to save your server's RAM this way.
+    dict=crc is now deprecated. It has a bunch of limitations, the most important ones being keyword collisions, and no (good) wildcard matching support. You can read more about those limitations in our documentation.
+    charset_type=sbcs is now deprecated, we're slowly switching to UTF-only. Even if your database is SBCS (likely for legacy reasons too, eh?), this should be absolutely trivial to workaround, just add a pre-query to fetch your data in UTF-8 and you're all set. Also, in fact, our current UTF-8 tokenizer is even faster than the SBCS one.
+    custom sort (@custom) is now removed from Sphinx. This feature was introduced long before sort by expression became a reality and it has been deprecated for a very long time.
+    enable_star is deprecated now. Previous default mode was enable_star=0 which was due to compatibility with a very old Sphinx version. Such implicit star search isn't very intuitive. So, we've decided to eventually remove it and have marked it as deprecated just recently. We plan to totally remove this configuration key in the 2.2.X branch.
+    str2ordinal attributes are deprecated. This feature allows you to perform sorting by a string. But it's also possible to do this with ordinary string attributes, which is much easier to use. str2ordinal only covers a small part of this functionality and is not needed now.
+    str2wordcount attributes are deprecated. index_field_lengths=1 will create an integer attribute with field length set automatically and we recommend to use this configuration key when you need to store field lengths. Also, index_field_lengths=1 allows you to use new ranking formulas like BM25F().
+    hit_format is deprecated. This is a hidden configuration key - it's not mentioned in our documentation. But, it's there and it's possible that someone may use it. And now we're urging you: don't use it. The default value is 'inline' and it's a new standard. 'plain' hit_format is obsolete and will be removed in the near future.
+    docinfo=inline is deprecated. You can now use ondisk_attrs or ondisk_attrs_default instead.
+    workers=threads is a new default for all OS now. We're gonna get rid of other modes in future.
+    mem_limit=128M is a new default.
+    rt_mem_limit=128M is a new default.
+    ondisk_dict is deprecated. No need to save RAM this way.
+    ondisk_dict_default is deprecated. No need to save RAM this way.
+    compat_sphinxql_magics was removed. Now you can't use an old result format and SphinxQL always looks more like ANSI SQL.
+    Completely removed xmlpipe. This was a very old ad hoc solution for a particular customer. xmlpipe2 surpasses it in every single aspect.
+
+None of the different querying methods are deprecated, but as of version 2.2.1-beta, SphinxQL is the most advanced method. We plan to remove SphinxAPI and Sphinx SE someday so it would be a good idea to start using SphinxQL.
+
+    The SetWeights() API call has been deprecated for a long time and has now been removed from official APIs.
+    The default matching mode for the API is now 'extended'. Actually, all other modes are deprecated. We recommend using the extended query syntax instead.
+
+<h3>Changes for 2.2.2-beta:</h3>
+
+    Removed deprecated "address" and "port" directives. Use "listen" instead.
+    Removed str2wordcount attributes. Use index_field_lengths=1 instead.
+    Removed str2ordinal attributes. Use string attributes for sorting.
+    ondisk_dict and ondisk_dict_default was removed.
+    Removed charset_type and mssql_unicode - we now support only UTF-8 encoding.
+    Removed deprecated enable_star. Now always work as with enable_star=1.
+    Removed CLI search which confused people instead of helping them and sql_query_info.
+    Deprecated SetMatchMode() API call.
+    Changed default thread_stack value to 1M.
+    Deprecated SetOverride() API call.
+
+<h3>Changes for 2.2.3-beta:</h3>
+
+    Removed unneeded max_matches key from config file.
+
+<h2>2.7. Quick Sphinx usage tour</h2>
+
+All the example commands below assume that you installed Sphinx in /usr/local/sphinx, so searchd can be found in /usr/local/sphinx/bin/searchd.
+
+To use Sphinx, you will need to:
+
+    Create a configuration file.
+
+    Default configuration file name is sphinx.conf. All Sphinx programs look for this file in current working directory by default.
+
+    Sample configuration file, sphinx.conf.dist, which has all the options documented, is created by configure. Copy and edit that sample file to make your own configuration: (assuming Sphinx is installed into /usr/local/sphinx/)
+
+    $ cd /usr/local/sphinx/etc
+    $ cp sphinx.conf.dist sphinx.conf
+    $ vi sphinx.conf
+
+    Sample configuration file is setup to index documents table from MySQL database test; so there's example.sql sample data file to populate that table with a few documents for testing purposes:
+
+    $ mysql -u test < /usr/local/sphinx/etc/example.sql
+
+    Run the indexer to create full-text index from your data:
+
+    $ cd /usr/local/sphinx/etc
+    $ /usr/local/sphinx/bin/indexer --all
+
+    Query your newly created index!
+
+Now query your indexes!
+
+Connect to server:
+$ mysql -h0 -P9306
+
+SELECT * FROM test1 WHERE MATCH('my document');
+INSERT INTO rt VALUES (1, 'this is', 'a sample text', 11);
+INSERT INTO rt VALUES (2, 'some more', 'text here', 22);
+SELECT gid/11 FROM rt WHERE MATCH('text') GROUP BY gid;
+SELECT * FROM rt ORDER BY gid DESC;
+SHOW TABLES;
+SELECT *, WEIGHT() FROM test1 WHERE MATCH('"document one"/1');SHOW META;
+SET profiling=1;SELECT * FROM test1 WHERE id IN (1,2,4);SHOW PROFILE;
+SELECT id, id%3 idd FROM test1 WHERE MATCH('this is | nothing') GROUP BY idd;SHOW PROFILE;
+SELECT id FROM test1 WHERE MATCH('is this a good plan?');SHOW PLAN;
+SELECT COUNT(*) c, id%3 idd FROM test1 GROUP BY idd HAVING COUNT(*)>1;
+SELECT COUNT(*) FROM test1;
+CALL KEYWORDS ('one two three', 'test1');
+CALL KEYWORDS ('one two three', 'test1', 1);
+
+Happy searching!
+
+<h2>3.1 Источники данных (Data sources)</h2>
+
+Данные, подлежащие индексированию, могут быть получены из разных источников: базы данных SQL, текстовые файлы, файлы HTML, почтовые ящики и т.Д. С точки зрения Sphinx, данные, которые он индексирует, представляют собой набор структурированных документов, каждый из которых имеет одинаковый набор полей и атрибутов. Это похоже на SQL, где каждая строка будет соответствовать документу, а каждый столбец либо полю, либо атрибуту.
+<br /><br />
+В зависимости от того, из какого источника Sphinx должен получать данные, требуется разны код для извлечения данных и подготовки к индексированию. Этот код называется data source driver (или просто driver или data source для краткости).
+<br /><br />
+На момент написания этой статьи существуют встроенные драйверы для MySQL, PostgreSQL, MS SQL (в Windows) и ODBC. Существует также общий драйвер, называемый xmlpipe2, который запускает указанную команду и считывает данные со своего stdout. Описание формата дано в Разделе 3.9, раздел «xmlpipe2 data source».
+<br /><br />
+В 2.2.1-бета добавлен источник данных tsvpipe (Tab Separated Values) и csvpipe (Comma Separated Values). Вы можете получить дополнительную информацию по ним в Разделе 3.10, «источник данных tsvpipe \ csvpipe (вкладка \ Comma Separated Values)».
+<br /><br />
+При необходимости может использоваться несколько источников на индекс. Они будут последовательно обрабатываться в том же порядке, в котором были указан в определении индекса. Все документы, поступающие из этих источников, будут объединены, как если бы они поступали из одного источника.
+<br /><br />
+
+<h2>3.2 Полнотекстовые поля (Full-text fields)</h2>
+Полные текстовые поля (или просто поля для краткости) - это текстовое содержимое документа, которое индексируется Sphinx и по которому может осуществляться быстрый поиск.
+<br /><br />
+Поля именуются, и вы можете ограничить поиск одним полем (например, поиск только по «title») или подмножеством полей (например, только для «title» и «abstract»). Формат индекса Sphinx обычно поддерживает до 256 полей. Однако до версии 2.0.1-бета-индексы были принудительно ограничены 32 полями из-за определенных осложнений в соответствующем движке. В версии 2.0.2-бета была добавлена полная поддержка 256 полей.
+<br /><br />
+Обратите внимание, что исходное содержимое полей не сохраняется в индексе Sphinx. Текст, который вы отправляете в Sphinx, обрабатывается, и из этого текста создается полнотекстовый индекс (специальная структура данных, которая обеспечивает быстрый поиск ключевого слова). Но исходное содержимое текста затем просто отбрасывается. Sphinx предполагает, что вы все равно храните это содержимое в другом месте.
+<br /><br />
+Более того, невозможно полностью восстановить исходный текст, так как при индексировании будут потеряны конкретные пробелы, регистр, пунктуация и т.д. Теоретически можно частично восстановить документ из полнотекстового индекса Sphinx, но это будет весьма медленно (особенно если используется словарь CRC, который даже не сохраняет исходные ключевые слова и работает с их хэшами).
+<br /><br />
+
+<h2>3.3 Атрибуты</h2>
+Атрибуты - это дополнительные значения, связанные с каждым документом, которые могут использоваться для выполнения дополнительной фильтрации и сортировки во время поиска.
+<br /><br />
+Часто требуется дополнительно обрабатывать результаты полнотекстового поиска, основанные не только на сопоставлении ID документа и его релевантности, но и на ряде других значений для каждого документа. Например, может потребоваться сначала сортировать результаты поиска новостей по дате, а потом по релевантности. Или, например, поиск продуктов в пределах определенного диапазона цен и т.п. Чтобы выполнять поиск эффективно, Sphinx позволяет прикрепить к каждому документу ряд дополнительных атрибутов и сохранить их значения в полнотекстовом индексе. Затем можно использовать сохраненные значения для фильтрации, сортировки или группировки полнотекстовых совпадений.
+<br /><br />
+Атрибуты, в отличие от полей, не индексируются по полному тексту. Они хранятся в индексе, но их невозможно найти в виде полнотекстового текста, и попытка сделать это приводит к ошибке.
+<br /><br />
+Например, невозможно использовать расширенное выражение режима соответствия (mode expression) @column 1 для соответствия документам, где column равен 1, если столбец является атрибутом (даже если числовые значения индексируются).
+<br /><br />
+Атрибуты могут использоваться для фильтрации, для ограничения возвращаемых строк, а также для сортировки или группировки результатов; вполне возможно сортировать результаты, основанные исключительно на атрибутах, и игнорировать инструменты релевантности поиска. Кроме того, демон поиска возвращает атрибуты, а индексированный текст - нет.
+<br /><br />
+Хорошим примером атрибутов будет таблица сообщений на форуме. Предположим, что только поля заголовка и содержимого должны быть доступны для полнотекстового поиска, но иногда также требуется ограничить поиск определенным автором или подфорумом (т.е. Искать только те строки, которые имеют определенные значения столбцов author_id или forum_id в таблице SQL); или группировать совпадающие записи по месяцам post_date и подсчитывать количество совпадений в каждой группе.
+<br /><br />
+Этого можно достичь, указав все упомянутые столбцы (исключая заголовок и контент, которые являются полнотекстовыми полями), как атрибуты, индексируя их, а затем используя вызовы API для настройки фильтрации, сортировки и группировки. Пример ниже:
+<br /><br />
+<b>Example sphinx.conf part:</b><br />
+<code>
+...<br />
+sql_query = SELECT  id, title, content, \<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; author_id, forum_id, post_date FROM my_forum_posts<br />
+sql_attr_uint = author_id<br />
+sql_attr_uint = forum_id<br />
+sql_attr_timestamp = post_date<br />
+...<br />
+</code>
+
+<br /><br />
+
+<b>Example application code (in PHP):</b><br />
+<code>
+// only search posts by author whose ID is 123<br />
+$cl->SetFilter ( "author_id", array ( 123 ) );
+<br /><br />
+// only search posts in sub-forums 1, 3 and 7<br />
+$cl->SetFilter ( "forum_id", array ( 1,3,7 ) );
+<br /><br />
+// sort found posts by posting date in descending order<br />
+$cl->SetSortMode ( SPH_SORT_ATTR_DESC, "post_date" );<br />
+</code>
+<br /><br />
+Атрибуты именуются. Имена атрибутов нечувствительны к регистру. Атрибуты не индексируются полностью; они сохраняются в индексе как есть.
+<br /><br />
+В настоящее время поддерживаются следующие типы атрибутов:
+<ul>
+<li>  целые числа без знака (от 1 до 32 бит);</li>
+<li>  Временные метки UNIX;</li>
+<li>  значения с плавающей запятой (32-битная, одноточечная IEEE 754);</li>
+<li>  строки (с 1.10-бета);</li>
+<li>  JSON (начиная с версии 2.1.1-бета);</li>
+<li>  MVA, многозначные атрибуты (списки переменной длины 32-разрядных целых чисел без знака).</li>
+</ul>
+<br /><br />
+Полный набор значений атрибутов для каждого документа иногда называют docinfo. Docinfos можно хранить отдельно от основных полнотекстовых индексных данных («extern» storage, в файле .spa) или прикрепляться к каждому вхождению идентификатора документа в полнотекстовые данные индекса («inline» storage в файле .spd ).
+<br /><br />
+При использовании внешнего хранилища копия файла .spa (со всеми значениями атрибутов для всех документов) постоянно сохраняется в ОЗУ по поисковому запросу. Это сделано для производительности, так как случайный доступ к диску работает слишком медленно.
+<br /><br />
+Напротив, встроенное хранилище вообще не требует какой-либо дополнительной ОЗУ, однако это связано с значительным раздуванием размера индекса: помните, что он копирует все значения атрибута каждый раз, когда упоминается идентификатор документа, и это будет происходить для каждого отличного ключевого слова в документе.
+<br /><br />
+Inline может быть единственным жизнеспособным вариантом, если у вас есть только несколько атрибутов и вам нужно работать с большими наборами данных в ограниченной ОЗУ. Однако в большинстве случаев внешнее хранилище делает индексирование и поиск намного более эффективным.
+<br /><br />
+
+Требования к памяти времени поиска для внешнего хранилища: <br />
+<code>  (1 + number_of_attrs) * number_of_docs * 4 байта </code><br />
+т.е. для примера 10 миллионов документов с 2 группами и 1 временной отметкой займут:<br />
+<code>  (1 + 2 + 1) * 10M * 4 = 160 МБ ОЗУ </code>
+<br /><br />
+Этот рассчёт приведён для одного демона, а не запроса. То есть searchd выделит 160 МБ при запуске, прочитает данные и сохранит их совместно с запросами.
+<br /><br />
+
+
+
+<h2>3.5 Индексы</h2>
+Чтобы быстро отвечать на запросы полнотекстового поиска, Sphinx необходимо создать специальную структуру данных, оптимизированную для таких запросов, из ваших текстовых данных. Эта структура называется индексом; и процесс построения индекса из текста называется индексированием.
+<br /><br />
+Для разных задач разумно выбирать подходящий тип индекса. Например, индекс диска на основе дерева будет легко обновляться (т.е. вставлять новые документы в существующий индекс), но медленнее искать. Архитектура Sphinx позволяет внутренне использовать различные типы индексов (также иногда называются backends), реализовать которые сравнительно легко.
+<br /><br />
+Начиная с 1.10-бета, Sphinx предоставляет 2 разных бэкенда:  disk index backend и RT (realtime) index backend.
+<br /><br />
+Индексы дисков предназначены для обеспечения максимальной скорости индексирования и поиска, используя при этом как можно меньше RAM. Это реализовано за счет обновления текстовых индексов. Вы не можете обновить существующий документ или поэтапно добавить новый документ в индекс диска. Вы можете только перезагрузить весь индекс диска с нуля.
+<br /><br />
+Обратите внимание - обновлять атрибуты документа «на лету» возможно даже с дисковыми индексами.
+<br /><br />
+Это ограничение "rebuild only" на первый взгляд может выглядеть как большая проблема. Однако его можно очень часто обойти довольно простым образом - настраивая несколько дисковых индексов, выполняя поиск по ним и восстанавливая только часть последних измененных данных. Подробные сведения см. В разделе 3.11 «Обновления индексов».
+<br /><br />
+RT-индексы позволяют вам внедрять динамические обновления и инкрементные дополнения к полному текстовому индексу. RT означает «реальное время», и это действительно «soft realtime» с точки зрения записи. Это значит, что большинство изменений индекса становятся доступными для поиска с точностью до 1 миллисекунды или менее, но иногда могут задерживаться на несколько секунд. (Поиск по-прежнему будет работать даже во время этих задержек) Подробнее см. Главу 4 «Индексы реального времени».
+<br /><br />
+И последнее, но не менее важное: Sphinx поддерживает так называемые распределенные индексы (distributed indexes). По сравнению с дисковыми и RT-индексами они являются не реальным физическим бэкэндом, а скорее списками локальных или удаленных индексов, по которым можно искать прозрачно для приложения, при этом Sphinx выполняет все обязанности по отправке поисковых запросов на удаленные компьютеры в кластере, агрегирование наборов результатов, повторение неудачных запросов и даже выполнение некоторой балансировки нагрузки. См. Раздел 5.8 «Распределенный поиск» для обсуждения распределенных индексов.
+<br /><br />
+При необходимости может столько угодно индексов на файл конфигурации. Утилита indexer может переиндексировать либо все из них (если задана опция -all), либо определенное явно указанное подмножество. утилита searchd будет обслуживать все указанные индексы, а клиенты могут указывать, какие индексы искать во время выполнения.
+
+<br /><br />
+
+<h2>3.11 Обновление индексов в реальном времени</h2>
+Существует два основных подхода к поддержанию полнотекстового содержимого индекса.
+<br /><br />
+<b>Обратите внимание, что оба этих подхода касаются задачи полнотекстовых обновлений данных, а не обновлений атрибутов. Быстрые обновления атрибутов поддерживаются с версии 0.9.8. Подробнее см. В описании вызова API-адресов UpdateAttributes.</b>
+<br /><br />
+Во-первых, вы можете использовать disk-based индексы, разбивать их вручную и периодически перестраивать небольшие разделы (так называемые «дельта»). Минимизируя размер обновлений, вы можете уменьшить среднюю задержку индексации до уровня 30-60 секунд. Этот подход был единственным, доступным в версиях 0.9.x. В огромных базах это действительно может быть самым эффективным. Подробнее см. Раздел 3.12 «Обновления индекса Delta».
+<br /><br />
+Во-вторых, версии 1.x (начиная с 1.10-бета) добавлена поддержка так называемых индексов реального времени (RT indexes), которые позволяют обновлять полнотекстовые данные «на лету». Обновления RT индексов могут отразиться в результатах поиска через 1-2 миллисекунды (0.001-0.002 сек). Однако индекс RT менее эффективен для индексирования огромных объемов данных. Подробнее см. Главу 4, Индексы реального времени.
