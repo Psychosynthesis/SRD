@@ -2,26 +2,46 @@
 <b>Для Sphinx v.2</b>
 
 <h2>1.1. Введение</h2>
+Sphinx это поисковый движок, обеспечивающий &laquo;полнотекстовый&raquo; поиск.
+Данное ПО распространяется под лицензией GPL version 2.
+Коммерческая лицензия (например для использования в качестве части ваших продуктов) доступна по запросу.
+<br /><br />
+Технически Sphinx это независимое приложение, обеспечивающее быстрый и точный &laquo;полнотекстовый&raquo; поиск [по БД] для ваших приложений.
+<br /><br />
+Хотя Sphinx был разработан специально для интеграции с SQL-базами данных, и обеспечивания доступности этих данных посредством скриптовых языков,
+тем не менее, он не требует какой-либо конкретной базы данных для функционирования.
+<br /><br />
+Приложения могут общаться со службой Sphinx (searchd) используя один из трёх способов:<br/>
+<ul>
+    <li>Через собственную реализацию MySQL-совместимого сетевого протокола (используя подмножество SQL под названием SphinxQL) - это рекомендуемый способ</li>
+    <li>Через встроенный API поиска (SphinxAPI)</li>
+    <li>Через сервер MySQL с отдельно подключаемым хранилищем (SphinxSE)</li>
+</ul>
+<br/><br/>
+Оффициальные реализации SphinxAPI для PHP, Perl, Python, Ruby и Java включены в распространяемый пакет.
+API весьма легковесно, поэтому портирование его под новые языки занимает всего несколько часов или дней.
+Сторонние реализации API и плагины существуют для Perl, C#, Haskell, Ruby-on-Rails и, вероятно, также для других языков и фреймворков.
+<br/><br/>
+Начиная с версии 1.10-beta, Sphinx поддерживает два разных типа индекса: индексы типа "disk" и "realtime" (RT) индексы. Предыдущие версии поддерживали только дисковые disk-индексы.
+<br/><br/>
+Вот некоторые различия между этими типами индексов:<br/>
+<ul>
+    <li>Disk-индексы поддерживают перестроение полнотекстового индекса в режиме онлайн,но онлайн-обновления могут выполняться только для нетекстовых (атрибуты) данных.
+    Данные могут быть загружены в disk-индексы с помощью т.н. &laquo;источника данных&raquo;.
+    Встроенные источники могут получать данные непосредственно из MySQL, PostgreSQL, MSSQL, ODBC-совместимой базы данных (Oracle и т. Д.), или из TSV-pipe или в произвольном XML-формате.
+    Добавление новых драйверов источников данных (например, для поддержки других СУБД) максимально просто.</li>
 
-Sphinx is a full-text search engine, publicly distributed under GPL version 2. Commercial licensing (eg. for embedded use) is available upon request.
-
-Technically, Sphinx is a standalone software package provides fast and relevant full-text search functionality to client applications. It was specially designed to integrate well with SQL databases storing the data, and to be easily accessed by scripting languages. However, Sphinx does not depend on nor require any specific database to function.
-
-Applications can access Sphinx search daemon (searchd) using any of the three different access methods: a) via Sphinx own implementation of MySQL network protocol (using a small SQL subset called SphinxQL, this is recommended way), b) via native search API (SphinxAPI) or c) via MySQL server with a pluggable storage engine (SphinxSE).
-
-Official native SphinxAPI implementations for PHP, Perl, Python, Ruby and Java are included within the distribution package. API is very lightweight so porting it to a new language is known to take a few hours or days. Third party API ports and plugins exist for Perl, C#, Haskell, Ruby-on-Rails, and possibly other languages and frameworks.
-
-Starting from version 1.10-beta, Sphinx supports two different indexing backends: "disk" index backend, and "realtime" (RT) index backend. Disk indexes support online full-text index rebuilds, but online updates can only be done on non-text (attribute) data. RT indexes additionally allow for online full-text index updates. Previous versions only supported disk indexes.
-
-Data can be loaded into disk indexes using a so-called data source. Built-in sources can fetch data directly from MySQL, PostgreSQL, MSSQL, ODBC compliant database (Oracle, etc) or a pipe in TSV or a custom XML format. Adding new data sources drivers (eg. to natively support other DBMSes) is designed to be as easy as possible. RT indexes, as of 1.10-beta, can only be populated using SphinxQL.
-
-As for the name, Sphinx is an acronym which is officially decoded as SQL Phrase Index. Yes, I know about CMU's Sphinx project.
-
+    <li>RT-индексы допускают онлайн обновления полнотекстового индекса, однако, начиная с v.1.10-бета, могут быть заполнены только с помощью SphinxQL.</li>
+</ul>
+<br/><br/>
+Что касается названия, <b>Sphinx</b> является аббревиатурой, которая официально расшифровывается как <b>SQL Phrase Index</b>.
+<br/>
+И да, я знаю о проекте CMU Sphinx.
+<br/><br/>
 
 
 <h2>1.2. Функциональность Sphinx</h2>
-
-Key Sphinx features are:
+Основные возможности Sphinx:
 
     high indexing and searching performance;
     advanced indexing and querying tools (flexible and feature-rich text tokenizer, querying language, several different ranking modes, etc);
@@ -207,22 +227,24 @@ There are two ways of getting Sphinx for Ubuntu: regular deb packages and the La
 Deb packages:
 
     Sphinx requires a few libraries to be installed on Debian/Ubuntu. Use apt-get to download and install these dependencies:
-    $ sudo apt-get install mysql-client unixodbc libpq5
+<code>
+    $ sudo apt-get install mysql-client unixodbc libpq5<br /><br />
 
-    Now you can install Sphinx:
+    <i>// Now you can install Sphinx:</i><br />
     $ sudo dpkg -i sphinxsearch_2.3.2-beta-1~trusty_amd64.deb
+</code>
 
 PPA repository (Ubuntu only).
 
 Installing Sphinx is much easier from Sphinxsearch PPA repository, because you will get all dependencies and can also update Sphinx to the latest version with the same command.
+<code>
+    <i>// First, add Sphinxsearch repository and update the list of packages:</i><br />
+    $ sudo add-apt-repository ppa:builds/sphinxsearch-rel23<br />
+    $ sudo apt-get update<br /><br />
 
-    First, add Sphinxsearch repository and update the list of packages:
-    $ sudo add-apt-repository ppa:builds/sphinxsearch-rel23
-    $ sudo apt-get update
-
-    Install/update sphinxsearch package:
+    <i>// Install/update sphinxsearch package:</i><br />
     $ sudo apt-get install sphinxsearch
-
+</code>
 Sphinx searchd daemon can be started/stopped using service command:
 
 $ sudo service sphinxsearch start
@@ -302,6 +324,7 @@ None of the different querying methods are deprecated, but as of version 2.2.1-b
 
     Removed unneeded max_matches key from config file.
 
+
 <h2>2.7. Quick Sphinx usage tour</h2>
 
 All the example commands below assume that you installed Sphinx in /usr/local/sphinx, so searchd can be found in /usr/local/sphinx/bin/searchd.
@@ -312,44 +335,52 @@ To use Sphinx, you will need to:
 
     Default configuration file name is sphinx.conf. All Sphinx programs look for this file in current working directory by default.
 
-    Sample configuration file, sphinx.conf.dist, which has all the options documented, is created by configure. Copy and edit that sample file to make your own configuration: (assuming Sphinx is installed into /usr/local/sphinx/)
+    Sample configuration file, sphinx.conf.dist, which has all the options documented, is created by configure.
+    Copy and edit that sample file to make your own configuration:
 
-    $ cd /usr/local/sphinx/etc
-    $ cp sphinx.conf.dist sphinx.conf
+<code>
+    <i>// (assuming Sphinx is installed into /usr/local/sphinx/)</i><br />
+    $ cd /usr/local/sphinx/etc<br />
+    $ cp sphinx.conf.dist sphinx.conf<br />
     $ vi sphinx.conf
+</code>
 
     Sample configuration file is setup to index documents table from MySQL database test; so there's example.sql sample data file to populate that table with a few documents for testing purposes:
 
+<code>
     $ mysql -u test < /usr/local/sphinx/etc/example.sql
+</code>
 
-    Run the indexer to create full-text index from your data:
+Run the indexer to create full-text index from your data:
 
-    $ cd /usr/local/sphinx/etc
+<code>
+    $ cd /usr/local/sphinx/etc<br />
     $ /usr/local/sphinx/bin/indexer --all
-
-    Query your newly created index!
+<code>
 
 Now query your indexes!
 
-Connect to server:
-$ mysql -h0 -P9306
+<code>
+    <i>// Connect to server:</i><br />
+    $ mysql -h0 -P9306<br />
 
-SELECT * FROM test1 WHERE MATCH('my document');
-INSERT INTO rt VALUES (1, 'this is', 'a sample text', 11);
-INSERT INTO rt VALUES (2, 'some more', 'text here', 22);
-SELECT gid/11 FROM rt WHERE MATCH('text') GROUP BY gid;
-SELECT * FROM rt ORDER BY gid DESC;
-SHOW TABLES;
-SELECT *, WEIGHT() FROM test1 WHERE MATCH('"document one"/1');SHOW META;
-SET profiling=1;SELECT * FROM test1 WHERE id IN (1,2,4);SHOW PROFILE;
-SELECT id, id%3 idd FROM test1 WHERE MATCH('this is | nothing') GROUP BY idd;SHOW PROFILE;
-SELECT id FROM test1 WHERE MATCH('is this a good plan?');SHOW PLAN;
-SELECT COUNT(*) c, id%3 idd FROM test1 GROUP BY idd HAVING COUNT(*)>1;
-SELECT COUNT(*) FROM test1;
-CALL KEYWORDS ('one two three', 'test1');
-CALL KEYWORDS ('one two three', 'test1', 1);
-
+    SELECT * FROM test1 WHERE MATCH('my document');<br />
+    INSERT INTO rt VALUES (1, 'this is', 'a sample text', 11);<br />
+    INSERT INTO rt VALUES (2, 'some more', 'text here', 22);<br />
+    SELECT gid/11 FROM rt WHERE MATCH('text') GROUP BY gid;<br />
+    SELECT * FROM rt ORDER BY gid DESC;<br />
+    SHOW TABLES;<br />
+    SELECT *, WEIGHT() FROM test1 WHERE MATCH('"document one"/1');SHOW META;<br />
+    SET profiling=1;SELECT * FROM test1 WHERE id IN (1,2,4);SHOW PROFILE;<br />
+    SELECT id, id%3 idd FROM test1 WHERE MATCH('this is | nothing') GROUP BY idd;SHOW PROFILE;<br />
+    SELECT id FROM test1 WHERE MATCH('is this a good plan?');SHOW PLAN;<br />
+    SELECT COUNT(*) c, id%3 idd FROM test1 GROUP BY idd HAVING COUNT(*)>1;<br />
+    SELECT COUNT(*) FROM test1;<br />
+    CALL KEYWORDS ('one two three', 'test1');<br />
+    CALL KEYWORDS ('one two three', 'test1', 1);
+</code>
 Happy searching!
+
 
 <h2>3.1 Источники данных (Data sources)</h2>
 
