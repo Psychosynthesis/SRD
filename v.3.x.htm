@@ -93,26 +93,17 @@ Getting started on Linux (and MacOS)
 Versions and file names will vary, and you most likely will want to configure Sphinx at least a little, but for an immediate quickstart:
 
 $ wget -q http://sphinxsearch.com/files/sphinx-3.0.2-2592786-linux-amd64.tar.gz
-
 $ tar zxf sphinx-3.0.2-2592786-linux-amd64.tar.gz
-
 $ cd sphinx-3.0.2-2592786-linux-amd64/bin
-
 $ ./searchd
 
 Sphinx 3.0.2 (commit 2592786)
-
 Copyright (c) 2001-2018, Andrew Aksyonoff
-
 Copyright (c) 2008-2016, Sphinx Technologies Inc (http://sphinxsearch.com)
 
-
 listening on all interfaces, port=9312
-
 listening on all interfaces, port=9306
-
 WARNING: No extra index definitions found in data folder
-
 $
 
 That’s it; the daemon should now be running and accepting connections on port 9306. And you can connect to it using MySQL CLI (see below for more details, or just try mysql -P9306 right away).
@@ -147,53 +138,30 @@ But in the simplest case even just mysql -P9306 should work fine.
 And from there, just run SphinxQL queries:
 
 mysql> CREATE TABLE test (gid integer, title field stored,
-
     -> content field stored);
-
 Query OK, 0 rows affected (0.00 sec)
-
-
 mysql> INSERT INTO test (id, title) VALUES (123, 'hello world');
-
 Query OK, 1 row affected (0.00 sec)
-
-
 mysql> INSERT INTO test (id, gid, content) VALUES (234, 345, 'empty title');
-
 Query OK, 1 row affected (0.00 sec)
-
-
 mysql> SELECT * FROM test;
 
 +------+------+-------------+-------------+
-
 | id   | gid  | title       | content     |
-
 +------+------+-------------+-------------+
-
 |  123 |    0 | hello world |             |
-
 |  234 |  345 |             | empty title |
-
 +------+------+-------------+-------------+
-
 2 rows in set (0.00 sec)
-
 
 mysql> SELECT * FROM test WHERE MATCH('hello');
 
 +------+------+-------------+---------+
-
 | id   | gid  | title       | content |
-
 +------+------+-------------+---------+
-
 |  123 |    0 | hello world |         |
-
 +------+------+-------------+---------+
-
 1 row in set (0.00 sec)
-
 
 mysql> SELECT * FROM test WHERE MATCH('@content hello');
 
@@ -203,21 +171,12 @@ SphinxQL is our own SQL dialect. More details on the supported statements are cu
 Running queries from PHP, Python, etc
 
 <?php
-
-
 $conn = mysqli_connect("127.0.0.1:9306", "", "", "");
-
 if (mysqli_connect_errno())
-
     die("failed to connect to Sphinx: " . mysqli_connect_error());
-
-
 $res = mysqli_query($conn, "SHOW VARIABLES");
-
 while ($row = mysqli_fetch_row($res))
-
     print "$row[0]: $row[1]\n";
-
 TODO: examples
 Running queries via HTTP
 
@@ -229,9 +188,7 @@ This only affects indexer ETL tool only. If you never bulk load data from SQL so
 Depending on your OS, the required package names may vary. Here are some current (as of Mar 2018) package names for Ubuntu and CentOS:
 
 ubuntu$ apt-get install libmysqlclient-dev libpq-dev unixodbc-dev
-
 ubuntu$ apt-get install libmariadb-client-lgpl-dev-compat
-
 
 centos$ yum install mariadb-devel postgresql-devel unixODBC-devel
 
@@ -242,7 +199,6 @@ indexer natively supports MySQL (or MariaDB), PostgreSQL, and UnixODBC drivers. 
 However, you still need to have a specific driver library installed on your system, so that indexer could dynamically load it, and access the database. Depending on the specific database and OS you use, the package names might be different, but here go a few common pointers.
 
 The driver libraries are loaded by name. The following names are attempted:
-
     MySQL: libmysqlclient.so or libmariadb.so
     PostgreSQL: libpq.so
     ODBC: libodbc.so
@@ -284,40 +240,25 @@ Fields
 Fields are the texts that Sphinx indexes and makes keyword-searchable. They always are indexed, as in full-text indexed. Their original, unindexed contents can also be stored into the index for later retrieval. By default, they are not, and Sphinx is going to return attributes only, and not the contents. However, if you explicitly mark them as stored (either with a stored flag in CREATE TABLE or in the ETL config file using stored_fields directive), you can also fetch the fields back:
 
 mysql> CREATE TABLE test1 (title field);
-
 mysql> INSERT INTO test1 VALUES (123, 'hello');
-
 mysql> SELECT * FROM test1 WHERE MATCH('hello');
 
 +------+
-
 | id   |
-
 +------+
-
 |  123 |
-
 +------+
-
 1 row in set (0.00 sec)
 
-
 mysql> CREATE TABLE test2 (title field stored);
-
 mysql> INSERT INTO test2 VALUES (123, 'hello');
-
 mysql> SELECT * FROM test2 WHERE MATCH('hello');
 
 +------+-------+
-
 | id   | title |
-
 +------+-------+
-
 |  123 | hello |
-
 +------+-------+
-
 1 row in set (0.00 sec)
 
 Stored fields contents are stored in a special index component called document storage, or DocStore for short.
@@ -452,11 +393,8 @@ CREATE INDEX i1 ON mytest(group_id)
 DESC mytest
 
 SELECT * FROM mytest WHERE group_id=1
-
 SELECT * FROM mytest WHERE group_id BETWEEN 10 and 20
-
 SELECT * FROM mytest WHERE MATCH('hello world') AND group_id=23
-
 DROP INDEX i1 ON mytest
 
 Point reads, range reads, and intersections between MATCH() and index reads are all intended to work. Moreover, GEODIST() can also automatically use indexes (see more below). One of the goals is to completely eliminate the need to insert “fake keywords” into your index. (Also, it’s possible to update attribute indexes on the fly, as opposed to indexed text.)
@@ -464,28 +402,21 @@ Point reads, range reads, and intersections between MATCH() and index reads are 
 Indexes on JSON keys should also work, but you might need to cast them to a specific type when creating the index:
 
 CREATE INDEX j1 ON mytest(j.group_id)
-
 CREATE INDEX j2 ON mytest(INTEGER(j.year))
-
 CREATE INDEX j3 ON mytest(FLOAT(j.latitude))
 
 As of version 3.0.2, attribute indexes can only be created on RT indexes. However, you can instantly convert your plain indexes to RT by using ATTACH ... WITH TRUNCATE, and run CREATE INDEX after that, as follows:
 
 ATTACH INDEX myplain TO myrt WITH TRUNCATE
-
 CREATE INDEX date_added ON myrt(date_added)
 
 A rather important optimization of GEODIST() automatically kicks in when you (a) use the form with 2 columns and 2 constants, and (b) then use the result in a filter, as follows:
 
-SELECT *, GEODIST(lat,lon,55.7540,37.6206,{in=deg,out=km}) AS dist
-
-  FROM myindex WHERE dist<=100
+SELECT *, GEODIST(lat,lon,55.7540,37.6206,{in=deg,out=km}) AS dist FROM myindex WHERE dist<=100
 
 In this example, the query optimizer will automatically compute the approximate bounding box (i.e. minimum and maximum possible lat and lon values that are within the 100 km distance), and utilize the indexes on both lat and lon columns if they are available, and even intersect the index read results first if the indexes on both columns exist. For small distances (i.e. within one city or so), the speedup is usually huge. Also note that in a slightly different query the optimization might not trigger, for example:
 
-SELECT *, GEODIST(lat,lon,55.7540,37.6206,{in=deg,out=km})<=100 AS bad_dist_flag
-
-  FROM myindex WHERE bad_dist_flag=1
+SELECT *, GEODIST(lat,lon,55.7540,37.6206,{in=deg,out=km})<=100 AS bad_dist_flag FROM myindex WHERE bad_dist_flag=1
 
 This is because the WHERE optimizer is a simpleton! It does not go too deep, and basically while in the first case it can immediately “sees” that dist is actually a GEODIST() and then examines it further, in the second case it only “sees” some kind of an arbitrary expression, and stops there.
 
@@ -771,9 +702,7 @@ Ranking: picking fields with rank_fields
 When your indexes and queries contain any special “fake” keywords (usually used to speedup matching), it makes sense to exclude those from ranking. That can be achieved by putting such keywords into special fields, and then using OPTION rank_fields clause in the SELECT statement to pick the fields with actual text for ranking. For example:
 
 SELECT id, weight(), title FROM myindex
-
 WHERE MATCH('hello world @sys _category1234')
-
 OPTION rank_fields='title content'
 
 rank_fields is designed to work as follows. Only the keyword occurrences in the ranked fields get processed when computing ranking factors. Any other occurrences are ignored (by ranking, that is).
