@@ -186,23 +186,23 @@ Sphinx может быть скомпилирован из исходных ко
     $ cd sphinx
 </code>
 <br/><br/>
-Run the configuration program:
+Запустите программу настройки:<br/>
 <code>$ ./configure</code>
 <br/><br/>
-
-There's a number of options to configure. The complete listing may be obtained by using --help switch. The most important ones are:
+Есть ряд параметров для настройки. Полный список можно получить, используя переключатель --help. Наиболее важные из них:<br/>
 
         --prefix, which specifies where to install Sphinx; such as --prefix=/usr/local/sphinx (all of the examples use this prefix)
         --with-mysql, which specifies where to look for MySQL include and library files, if auto-detection fails;
         --with-static-mysql, which builds Sphinx with statically linked MySQL support;
         --with-pgsql, which specifies where to look for PostgreSQL include and library files.
         --with-static-pgsql, which builds Sphinx with statically linked PostgreSQL support;
-
-    Build the binaries:
-    $ make
-
-    Install the binaries in the directory of your choice: (defaults to /usr/local/bin/ on *nix systems, but is overridden with configure --prefix)
-    $ make install
+<br/><br/>
+Build the binaries:<br/>
+<code>$ make</code>
+<br/><br/>
+Установите двоичные файлы в каталог по вашему выбору.<br/>
+<small>(по умолчанию <i>/usr/local/bin/</i> в системах *nix, но переопределяется с помощью configure --prefix)</small><br/>
+<code>$ make install</code>
 <br/><br/>
 
 
