@@ -130,19 +130,17 @@ Dmytro Shteflyuk, Ruby API<br/>
 
 <h2>1.6. История</h2>
 Разработка Sphinx началась еще в 2001 году, потому что мне не удалось найти приемлемое решение для поиска (для веб-сайта, управляемого базой данных),
-которое отвечало бы моим требованиям. Фактически, каждый упомянутый далее аспект был важным и не имел качественной реализации:
+которое отвечало бы моим требованиям. Фактически, каждый упомянутый далее аспект был важным и не имел качественной реализации:<br/>
 <ul>
-    search quality (ie. good relevance)
-    statistical ranking methods performed rather bad, especially on large collections of small documents (forums, blogs, etc)
-    search speed
-    especially if searching for phrases which contain stopwords, as in "to be or not to be"
-    moderate disk and CPU requirements when indexing
-    important in shared hosting environment, not to mention the indexing speed.
-<ul>
+    <li>качество поиска (т.е. хорошая релевантность)</li>
+    <li>методы статистического ранжирования работали довольно плохо, особенно на больших коллекциях небольших документов (форумы, блоги и т. д.)</li>
+    <li>скорость поиска (особенно при поиске фраз, содержащих запрещенные слова, например, "быть или не быть")</li>
+    <li>требования к диску и процессору при индексировании (важно в среде виртуального хостинга, не говоря уже о скорости индексации)</li>
+</ul>
 <br/><br/>
-Despite the amount of time passed and numerous improvements made in the other solutions, there's still no solution which I personally would be eager to migrate to.
+Несмотря на прошедшее время и многочисленные улучшения, внесенные в другие решения, до сих пор нет ПО, на которое я лично хотел бы перейти.
 <br/><br/>
-Considering that and a lot of positive feedback received from Sphinx users during last years, the obvious decision is to continue developing Sphinx (and, eventually, to take over the world).
+Учитывая это и множество положительных отзывов, полученных от пользователей Sphinx в последние годы, очевидным решением является продолжение разработки Sphinx (и, в конечном итоге, захват мира).
 <br/><br/>
 
 <h2>Часть 2. Установка</h2>
@@ -160,11 +158,12 @@ Sphinx может быть скомпилирован из исходных ко
     <li>Mac OS X</li>
 </ul>
 <br/><br/>
-CPU architectures known to work include i386 (aka x86), amd64 (aka x86_64), SPARC64, and ARM.
+Известные поддерживаемые архитектуры CPU включают i386 (он же x86), amd64 (он же x86_64), SPARC64 и ARM.
 <br/><br/>
-Chances are good that Sphinx should work on other Unix platforms and/or CPU architectures just as well. Please report any other platforms that worked for you!
+Скорее всего, Sphinx также должен работать на других Unix-совместимых платформах и/или архитектурах.
+Пожалуйста, сообщите о любых других окружениях, на которых вам удалось запустить Sphinx!
 <br/><br/>
-All platforms are production quality. There are no principal functional limitations on any platform.
+Версии на всех системах работают одинаково. Принципиальных функциональных ограничений на любой платформе нет.
 <br/><br/>
 
 
@@ -222,7 +221,7 @@ There's a number of options to configure. The complete listing may be obtained b
 <code>
 	sphinx.cpp:67: error: invalid application of `sizeof' to<br/>
     incomplete type `Private::SizeError&lt;false&gt;`
-<code>
+</code>
 <br/><br/>
 Это скорее всего значит, что какая-то из проверок размеров типа во время компиляции не удалась. Наиболее вероятная причина в том, что тип off_t в вашей системе меньше 64-битного.
 В качестве быстрого решения вы можете отредактировать sphinx.h и заменить off_t на DWORD в typedef для SphOffset_t,
@@ -349,7 +348,7 @@ After preparing configuration file (see Quick tour), you can start searchd daemo
     <li>Стандартное имя файла конфигурации изначально: <i>sphinx.conf</i>. По умолчанию все программы Sphinx ищут этот файл в текущем рабочем каталоге.</li>
     <li>Пример файла конфигурации называется <i>sphinx.conf.dist</i>, он создаётся программой configure и там задокументированы все параметры.</li>
     <li>Скопируйте и правьте этот файл для настройки собственной конфигурации.</li>
-<ul>
+</ul>
 <br/><br/>
 
 <code>
@@ -366,18 +365,16 @@ After preparing configuration file (see Quick tour), you can start searchd daemo
     $ mysql -u test < /usr/local/sphinx/etc/example.sql
 </code>
 <br/><br/>
-Запустите indexer, чтобы создать полнотекстовый индекс из ваших данных:
-<br/><br/>
+Запустите indexer, чтобы создать полнотекстовый индекс из ваших данных:<br/>
 <code>
     $ cd /usr/local/sphinx/etc<br />
     $ /usr/local/sphinx/bin/indexer --all
-<code>
+</code>
 <br/><br/>
-Теперь запросите свои индексы!
-<br/><br/>
+Теперь запросите свои индексы!<br/>
 <code>
     <i>// Connect to server:</i><br />
-    $ mysql -h0 -P9306<br />
+    $ mysql -h0 -P9306<br /><br />
 
     SELECT * FROM test1 WHERE MATCH('my document');<br />
     INSERT INTO rt VALUES (1, 'this is', 'a sample text', 11);<br />
